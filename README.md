@@ -33,5 +33,7 @@ Username: rstudio
 Password: yourpassword
 
 Once signed in, go to the “Terminal” tab and simply type the following to get your report pdf file:
+
 cd work
+
 make report.pdf
