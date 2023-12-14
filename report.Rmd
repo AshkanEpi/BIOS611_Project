@@ -1,0 +1,121 @@
+---
+title: "Final Report for BIOS 611"
+author: "Ashkan Habib"
+date: "2023-12-14"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.pos='H', echo = TRUE)
+```
+
+# Final Report
+
+This report is based on the analysis of "Cardiovascular Diseases Risk Prediction Dataset The 2021 BRFSS Dataset from CDC.You can download the dataset for free and check it out yourself from keggle. The link is in the repository ReadMe file.
+
+## Overview
+
+I was interested in this dataset because I generally like to conduct clinical research, especially on cardiovascular diseases. My question was whether I could predict the risk of cardiovascular health using other variables. Let's look at the summary statistics of the study:
+
+```{r}
+load("~/work/tables/first_look.RData")
+look
+```
+
+```{r}
+load("~/work/tables/proportions.RData")
+proportions
+```
+
+There are 308854 observations in this study. Mean BMI is 28.6, with 25.7% and and 18.1% having very good or excellent health status'. The study is about half female and male and 8.1% have heart disease.
+
+## Risk Factors
+
+Since this a cross sectional look into the association of heart disease with its risk factors, let's look at the prevalence of each risk factor by their heart health status:
+
+![Prevalence of risk factors by heart status](~/work/figures/combined_plot.png)
+
+Right at the start we notice that there are massive differences in arthritis, smoking and age. Difference in diabetes is also noticeable. Let's look at the mean and median of continuous factors by heart status:
+
+![Distribution of of continuous risk factors by heart status](~/work/figures/combined_plot2.png)
+
+Here, we see thatalcohol consumption distribution clearly differs based on heart status, followed by a much smaller difference in BMI. The rest don't look that different. Let's look at their differnece individually and conduct a simple wilcoxon ramk sum test.
+
+```{r}
+load("~/work/tables/BMI.RData")
+BMI
+BMI2
+```
+
+Based on above, there's a very small diffrence in BMI and it is statistically significant.
+
+```{r}
+load("~/work/tables/alcohol.RData")
+alcohol
+alcohol2
+```
+
+Alcohol is also different, with those having a heart disease consuming less alcohol. This is also statistically significant.
+
+```{r}
+load("~/work/tables/fruit.RData")
+fruit
+fruit2
+```
+
+Fruit looks to be similar but the p value is statistically significant, meaning there's still some difference however small.
+
+```{r}
+load("~/work/tables/veggies.RData")
+veggies
+veggies2
+```
+
+Vegetable consumption also looks to be similar but the p value is statistically significant.
+
+```{r}
+load("~/work/tables/fries.RData")
+fries
+fries2
+```
+
+Same results are seen for fried potato consumption: very similar but with statistically significant p value.
+
+## Modeling
+
+The next step is to perform a gradient boosting model to predict heart disease with all of the revelant risk factors inserted. For this step, I included 80% of the observations that were randomly chosen to fit (train) the model, we will compare them against the remaining 20% as a test. I also did not put cancer as a variable as it might lead to selection bias. I also did not put weight and weight because their data is alrerady captured in the BMI variable.
+
+![Relative Influence Plot for GBM](~/work/figures/relative_influence_plot.png)
+
+It's very appearant that age, general health and diabetes have high influence. This was very expected as all are massive risk factors for heart disease. But let's look deeper and see what variables had little to no influence:
+
+```{r}
+load("~/work/tables/model_summary.RData")
+model_sum
+```
+
+Interestingly, a lot of risk factors of heart disease have no influence in the model, including exercise, BMI and fried potato consumption. I suspect that the reason is because their influence is already captured by the "General Health" status.
+
+Next, we'll compare the model explanatory capabilities against the remaining 20% of observations:
+
+```{r}
+load("~/work/tables/confusion.RData")
+conf_matrix
+```
+
+At a cutoff of higher than 50% chance of having heart disease, the specificity is really high but the sensitivity is really low. The degree of agreement (kappa) is also really low. Basically, we can infere that the cut off of 50% is too high to assume certainty about the heart health status for this model. But the model might still be good despite this. Let's look the ROC curve:
+
+![ROC curve for GBM](~/work/figures/ROC.png)
+
+This looks very good! The L bend in the curve shows that the model is very string for prediction. Let's look at the area under the curve too:
+
+```{r AUC}
+load("~/work/tables/model_auc.RData")
+model_auc
+```
+
+The AUC is really high, we have a good model on our hands despite the lackluster performance at the 50% cutoff.
+
+# Conclusion
+
+First, it was surpring to see that diet, exercise and obesity didn't contribute to predicitng the probability of heart disease as much as we previously thought. One reason might be the cross sectional nature of this data. Future research should look into whether the same results on the variables are replicated. The GBM prediction model that we got from this dataset can also be checked if it also applicable to other datasets and populations; for instance, the BRFSS dataset from 2022.
