@@ -1,1 +1,10 @@
 FROM rocker/verse
+RUN R -e "install.packages(\"DescTools\")"
+RUN R -e "install.packages(\"gbm\")"
+RUN R -e "install.packages(\"caret\")"
+RUN R -e "install.packages(\"pROC\")"
+RUN R -e "install.packages(\"patchwork\")"
+RUN R -e "install.packages(\"rmarkdown\")"
+RUN R -e "install.packages(\"knitr\")"
+RUN R -e "install.packages(\"pandoc\")"
+RUN R -e "install.packages(\"tinytex\")"
