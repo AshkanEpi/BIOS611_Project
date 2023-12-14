@@ -32,6 +32,6 @@ Sign in with this password and username:
 Username: rstudio
 Password: yourpassword
 
-Once signed in, go to the “Terminal” tab and simply type the following to get your report pdf file:
-
+Once signed in, go to the â€œTerminalâ€ tab and simply type the following to get your report pdf file:
+cd work
 make report.pdf
